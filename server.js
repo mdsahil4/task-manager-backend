@@ -5,36 +5,30 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-// Middleware
 app.use(express.json());
 
-// 🔗 Routes
+// Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/projects", require("./routes/projectRoutes"));
 app.use("/api/tasks", require("./routes/taskRoutes"));
 app.use("/api/dashboard", require("./routes/dashboardRoutes"));
 
-// 🔐 Middleware import
-const auth = require("./middleware/auth");
-
-// 🔒 Protected test route
-app.get("/api/test", auth, (req, res) => {
-  res.send("Protected route accessed ✅");
-});
-
-// 🏠 Home route
+// Home route (VERY IMPORTANT)
 app.get("/", (req, res) => {
   res.send("API Running 🚀");
 });
 
-// 🔌 DB Connect
+// 🔥 FIX: Proper DB + PORT handling
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("DB Connected ✅"))
-  .catch(err => console.log(err));
+  .then(() => {
+    console.log("DB Connected ✅");
 
-// ✅ IMPORTANT FIX (Railway ke liye)
-const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT; // ❗ IMPORTANT
 
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("Server running on port " + PORT);
+    });
+  })
+  .catch(err => {
+    console.log("DB Error ❌", err);
+  });
